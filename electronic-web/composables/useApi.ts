@@ -33,22 +33,48 @@ export function useApi() {
   const baseURL = config.public.apiBase
 
   async function fetchProducts(): Promise<Product[]> {
-    const { data } = await useFetch<ApiResult<Product[]>>(`${baseURL}/api/products`)
-    return data.value?.data ?? []
+    try {
+      const result = await $fetch<ApiResult<Product[]>>(`${baseURL}/api/products`)
+      return result.data ?? []
+    }
+    catch {
+      return []
+    }
   }
 
   async function fetchProduct(id: number): Promise<Product | null> {
-    const { data } = await useFetch<ApiResult<Product>>(`${baseURL}/api/products/${id}`)
-    return data.value?.data ?? null
+    try {
+      const result = await $fetch<ApiResult<Product>>(`${baseURL}/api/products/${id}`)
+      return result.data ?? null
+    }
+    catch {
+      return null
+    }
   }
 
   async function searchProducts(keyword: string): Promise<Product[]> {
-    const { data } = await useFetch<ApiResult<Product[]>>(`${baseURL}/api/products/search`, {
-      params: { keyword },
-    })
-    return data.value?.data ?? []
+    try {
+      const result = await $fetch<ApiResult<Product[]>>(`${baseURL}/api/products/search`, {
+        params: { keyword },
+      })
+      return result.data ?? []
+    }
+    catch {
+      return []
+    }
   }
 
-  return { fetchProducts, fetchProduct, searchProducts }
+  // @author Cursor Agent and ZKT AI 编程助手，GENERATED-BY-Claude，2026-03-03 新增按分类查询商品方法
+  async function fetchProductsByCategory(category: string): Promise<Product[]> {
+    try {
+      const result = await $fetch<ApiResult<Product[]>>(`${baseURL}/api/products/category/${encodeURIComponent(category)}`)
+      return result.data ?? []
+    }
+    catch {
+      return []
+    }
+  }
+
+  return { fetchProducts, fetchProduct, searchProducts, fetchProductsByCategory }
 }
 // AI-GENERATED-END
