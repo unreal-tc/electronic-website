@@ -1,0 +1,9 @@
+/workspace/electronic-api/src/main/java/com/electronic/api/config/Knife4jConfig.java
+/workspace/electronic-api/src/main/java/com/electronic/api/common/Result.java
+/workspace/electronic-api/src/main/java/com/electronic/api/service/impl/ProductServiceImpl.java
+/workspace/electronic-api/src/main/java/com/electronic/api/entity/Product.java
+/workspace/electronic-api/src/main/java/com/electronic/api/config/CorsConfig.java
+/workspace/electronic-api/src/main/java/com/electronic/api/service/ProductService.java
+/workspace/electronic-api/src/main/java/com/electronic/api/repository/ProductRepository.java
+/workspace/electronic-api/src/main/java/com/electronic/api/controller/ProductController.java
+/workspace/electronic-api/src/main/java/com/electronic/api/ElectronicApiApplication.java
