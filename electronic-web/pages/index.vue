@@ -19,9 +19,13 @@
       <h2 class="text-3xl font-bold text-center mb-10">热门商品</h2>
 
       <div v-if="products.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
+        <!-- AI-GENERATED-BEGIN -->
+        <!-- GENERATED-BY-Claude -->
+        <!-- @author Cursor Agent and ZKT AI 编程助手，2026-03-03 商品卡片增加详情页链接 -->
+        <NuxtLink
           v-for="product in products"
           :key="product.id"
+          :to="`/products/${product.id}`"
           class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition group"
         >
           <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -39,7 +43,8 @@
               <span class="text-gray-400 text-sm">库存 {{ product.stock }}</span>
             </div>
           </div>
-        </div>
+        </NuxtLink>
+        <!-- AI-GENERATED-END -->
       </div>
 
       <div v-else class="text-center py-20 text-gray-400">
