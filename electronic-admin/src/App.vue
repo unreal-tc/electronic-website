@@ -15,6 +15,18 @@
             <ShoppingOutlined />
             <span>商品管理</span>
           </a-menu-item>
+          <!-- AI-GENERATED-BEGIN -->
+          <!-- GENERATED-BY-Claude -->
+          <!-- @author Cursor Agent and ZKT AI 编程助手，2026-03-03 新增用户管理和订单管理菜单 -->
+          <a-menu-item key="users" @click="$router.push('/users')">
+            <UserOutlined />
+            <span>用户管理</span>
+          </a-menu-item>
+          <a-menu-item key="orders" @click="$router.push('/orders')">
+            <OrderedListOutlined />
+            <span>订单管理</span>
+          </a-menu-item>
+          <!-- AI-GENERATED-END -->
         </a-menu>
       </a-layout-sider>
 
@@ -33,14 +45,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DashboardOutlined, ShoppingOutlined } from '@ant-design/icons-vue'
+// @author Cursor Agent and ZKT AI 编程助手，GENERATED-BY-Claude，2026-03-03 新增用户和订单图标导入
+import { DashboardOutlined, ShoppingOutlined, UserOutlined, OrderedListOutlined } from '@ant-design/icons-vue'
 
 const collapsed = ref(false)
 const route = useRoute()
 
+// @author Cursor Agent and ZKT AI 编程助手，GENERATED-BY-Claude，2026-03-03 扩展菜单选中逻辑
 const selectedKeys = computed(() => {
   const path = route.path
   if (path.startsWith('/products')) return ['products']
+  if (path.startsWith('/users')) return ['users']
+  if (path.startsWith('/orders')) return ['orders']
   return ['dashboard']
 })
 

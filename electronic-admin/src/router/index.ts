@@ -30,6 +30,20 @@ const router = createRouter({
       component: () => import('../views/ProductList.vue'),
       meta: { title: '商品管理' },
     },
+    // @author Cursor Agent and ZKT AI 编程助手，GENERATED-BY-Claude，2026-03-03 新增用户管理路由
+    {
+      path: '/users',
+      name: 'Users',
+      component: () => import('../views/UserList.vue'),
+      meta: { title: '用户管理' },
+    },
+    // @author Cursor Agent and ZKT AI 编程助手，GENERATED-BY-Claude，2026-03-03 新增订单管理路由
+    {
+      path: '/orders',
+      name: 'Orders',
+      component: () => import('../views/OrderList.vue'),
+      meta: { title: '订单管理' },
+    },
   ],
 })
 
