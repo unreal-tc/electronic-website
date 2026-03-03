@@ -26,6 +26,39 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+OS_TYPE="$(uname -s)"
+
+get_children() {
+    local parent=$1
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        ps -o pid= -ax | while read -r p; do
+            ps -o ppid= -p "$p" 2>/dev/null | tr -d ' ' | grep -qx "$parent" && echo "$p"
+        done
+    else
+        ps -o pid= --ppid "$parent" 2>/dev/null
+    fi
+}
+
+kill_tree() {
+    local pid=$1
+    local children
+    children=$(get_children "$pid")
+    for child in $children; do
+        kill_tree "$child"
+    done
+    kill "$pid" 2>/dev/null || true
+}
+
+kill_tree_force() {
+    local pid=$1
+    local children
+    children=$(get_children "$pid")
+    for child in $children; do
+        kill_tree_force "$child"
+    done
+    kill -9 "$pid" 2>/dev/null || true
+}
+
 do_stop() {
     bash "$ROOT_DIR/stop.sh" 2>/dev/null
 }
@@ -47,12 +80,12 @@ print_banner() {
 
 check_port() {
     local port=$1
-    if command -v ss &>/dev/null; then
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        lsof -i :"$port" -sTCP:LISTEN &>/dev/null
+    elif command -v ss &>/dev/null; then
         ss -tlnp 2>/dev/null | grep -q ":${port} "
     elif command -v lsof &>/dev/null; then
         lsof -i :"$port" -sTCP:LISTEN &>/dev/null
-    elif command -v netstat &>/dev/null; then
-        netstat -tlnp 2>/dev/null | grep -q ":${port} "
     else
         return 1
     fi
@@ -77,7 +110,11 @@ check_prerequisites() {
         echo -e "  ${GREEN}✓${NC} Maven: $mvn_ver"
     else
         echo -e "  ${RED}✗${NC} Maven 未安装"
-        echo -e "      ${YELLOW}提示：sudo apt-get install -y maven${NC}"
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            echo -e "      ${YELLOW}提示：brew install maven${NC}"
+        else
+            echo -e "      ${YELLOW}提示：sudo apt-get install -y maven${NC}"
+        fi
         missing=1
     fi
 
@@ -139,12 +176,10 @@ start_api() {
     echo -e "${BOLD}[3/4] 启动 API 服务 (Spring Boot)...${NC}"
     echo -e "  ${CYAN}→${NC} 编译并启动中，日志输出到 ${API_LOG}"
 
-    setsid bash -c "cd '$ROOT_DIR/electronic-api' && exec mvn spring-boot:run -q" > "$API_LOG" 2>&1 &
+    (cd "$ROOT_DIR/electronic-api" && exec mvn spring-boot:run -q) > "$API_LOG" 2>&1 &
     local pid=$!
-    local pgid
-    pgid=$(ps -o pgid= -p "$pid" 2>/dev/null | tr -d ' ')
-    echo "API $pgid" >> "$PID_FILE"
-    echo -e "  ${CYAN}→${NC} API 进程组 PGID: $pgid"
+    echo "API $pid" >> "$PID_FILE"
+    echo -e "  ${CYAN}→${NC} API 进程 PID: $pid"
 
     local max_wait=120
     local waited=0
@@ -182,19 +217,15 @@ start_api() {
 start_frontends() {
     echo -e "${BOLD}[4/4] 启动前端服务...${NC}"
 
-    setsid bash -c "cd '$ROOT_DIR/electronic-web' && exec pnpm dev" > "$WEB_LOG" 2>&1 &
+    (cd "$ROOT_DIR/electronic-web" && exec pnpm dev) > "$WEB_LOG" 2>&1 &
     local web_pid=$!
-    local web_pgid
-    web_pgid=$(ps -o pgid= -p "$web_pid" 2>/dev/null | tr -d ' ')
-    echo "WEB $web_pgid" >> "$PID_FILE"
-    echo -e "  ${GREEN}✓${NC} C端前端已启动 (PGID: $web_pgid, 端口: 3000)"
+    echo "WEB $web_pid" >> "$PID_FILE"
+    echo -e "  ${GREEN}✓${NC} C端前端已启动 (PID: $web_pid, 端口: 3000)"
 
-    setsid bash -c "cd '$ROOT_DIR/electronic-admin' && exec pnpm dev" > "$ADMIN_LOG" 2>&1 &
+    (cd "$ROOT_DIR/electronic-admin" && exec pnpm dev) > "$ADMIN_LOG" 2>&1 &
     local admin_pid=$!
-    local admin_pgid
-    admin_pgid=$(ps -o pgid= -p "$admin_pid" 2>/dev/null | tr -d ' ')
-    echo "ADMIN $admin_pgid" >> "$PID_FILE"
-    echo -e "  ${GREEN}✓${NC} 后台管理已启动 (PGID: $admin_pgid, 端口: 3001)"
+    echo "ADMIN $admin_pid" >> "$PID_FILE"
+    echo -e "  ${GREEN}✓${NC} 后台管理已启动 (PID: $admin_pid, 端口: 3001)"
 
     echo ""
 }
